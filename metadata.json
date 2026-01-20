@@ -1,0 +1,8 @@
+{
+  "name": "ThatFreelancer",
+  "description": "A high-speed marketplace for affordable freelancing services like design, writing, and social media management.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
