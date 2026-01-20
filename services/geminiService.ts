@@ -1,10 +1,20 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// We use a getter to initialize the AI client only when needed, 
+// ensuring it picks up the defined process.env.API_KEY correctly.
+const getAiClient = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.warn("Gemini API Key is missing. Please set API_KEY in your environment variables.");
+    return null;
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export const getBriefAssistance = async (roughDraft: string, serviceTitle: string) => {
-  if (!process.env.API_KEY) return roughDraft;
+  const ai = getAiClient();
+  if (!ai) return roughDraft;
 
   try {
     const response = await ai.models.generateContent({
@@ -23,7 +33,9 @@ export const getBriefAssistance = async (roughDraft: string, serviceTitle: strin
 };
 
 export const getAiReply = async (message: string) => {
-    if (!process.env.API_KEY) return "I'm currently offline. Please check your internet.";
+    const ai = getAiClient();
+    if (!ai) return "I'm currently offline. Support will be available soon.";
+    
     try {
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -31,6 +43,7 @@ export const getAiReply = async (message: string) => {
       });
       return response.text?.trim() || "Let me check that for you.";
     } catch (e) {
+      console.error("Chat AI Error:", e);
       return "I'm having trouble connecting to support right now.";
     }
 }
