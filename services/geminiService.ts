@@ -1,12 +1,11 @@
-
 import { GoogleGenAI } from "@google/genai";
 
-// We use a getter to initialize the AI client only when needed, 
-// ensuring it picks up the defined process.env.API_KEY correctly.
 const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
+  // Safe access to the injected variable
+  const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
+  
   if (!apiKey) {
-    console.warn("Gemini API Key is missing. Please set API_KEY in your environment variables.");
+    console.warn("Gemini API Key is missing. Ensure API_KEY is set in Vercel Environment Variables.");
     return null;
   }
   return new GoogleGenAI({ apiKey });
@@ -39,7 +38,7 @@ export const getAiReply = async (message: string) => {
     try {
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: `You are ThatFreelancer Support AI. Answer this query politely: ${message}`,
+        contents: `You are ThatFreelancer Support AI. Answer this query politely and briefly: ${message}`,
       });
       return response.text?.trim() || "Let me check that for you.";
     } catch (e) {
